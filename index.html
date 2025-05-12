@@ -167,6 +167,12 @@
         params.append(key, value);
       }
 
+      // Log values being sent
+      console.log("Submitting data:");
+      for (const [key, value] of params.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      
       // Time validation
       const start = form.elements["fuelingStartTime"].value;
       const end = form.elements["fuelingEndTime"].value;
