@@ -119,7 +119,7 @@
     </div>
 
     <!-- Hidden field for timestamp -->
-    <input type="hidden" name="submittedAt" id="submittedAt">
+    <input type="hidden" name="submissionTimestamp" id="submissionTimestamp">
 
     <button type="submit">Submit</button>
   </form>
@@ -159,7 +159,7 @@
 
       // Record submission timestamp
       const timestamp = new Date().toISOString();
-      document.getElementById("submittedAt").value = timestamp;
+      document.getElementById("submissionTimestamp").value = timestamp;
 
       const formData = new FormData(form);
       const params = new URLSearchParams();
