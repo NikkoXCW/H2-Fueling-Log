@@ -118,6 +118,9 @@
       <textarea id="notes" name="notes" rows="5" placeholder="Anything to add..."></textarea>
     </div>
 
+    <!-- Hidden field for timestamp -->
+    <input type="hidden" name="submissionTimestamp" id="submissionTimestamp">
+
     <button type="submit">Submit</button>
   </form>
 
@@ -126,12 +129,37 @@
   <script>
     const form = document.getElementById("form");
     const status = document.getElementById("status");
+    const STORAGE_KEY = "h2_fueling_log_draft";
 
+    // Load saved draft
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        for (const [key, value] of Object.entries(data)) {
+          if (form.elements[key]) form.elements[key].value = value;
+        }
+      }
+    });
+
+    // Save form inputs to localStorage
+    form.addEventListener("input", () => {
+      const data = {};
+      for (const element of form.elements) {
+        if (element.name) data[element.name] = element.value;
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    });
+
+    // Submit logic
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Confirm before submit
       if (!confirm("Submit fueling log?")) return;
+
+      // Record submission timestamp
+      const timestamp = new Date().toISOString();
+      document.getElementById("submissionTimestamp").value = timestamp;
 
       const formData = new FormData(form);
       const params = new URLSearchParams();
@@ -139,7 +167,7 @@
         params.append(key, value);
       }
 
-      // Validate time order
+      // Time validation
       const start = form.elements["fuelingStartTime"].value;
       const end = form.elements["fuelingEndTime"].value;
       if (end && end < start) {
@@ -159,10 +187,12 @@
 
         const text = await response.text();
         console.log("Response:", text);
+
         if (response.ok) {
           status.innerText = "Submitted successfully!";
           status.className = "success";
           form.reset();
+          localStorage.removeItem(STORAGE_KEY);
         } else {
           status.innerText = "Submission failed.";
           status.className = "error";
