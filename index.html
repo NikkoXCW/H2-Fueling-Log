@@ -118,8 +118,8 @@
       <textarea id="notes" name="notes" rows="5" placeholder="Anything to add..."></textarea>
     </div>
 
-    <!-- Hidden field for timestamp -->
-    <input type="hidden" name="submissionTimestamp" id="submissionTimestamp">
+    const timestamp = new Date().toISOString();
+    params.append("submissionTimestamp", timestamp);
 
     <button type="submit">Submit</button>
   </form>
