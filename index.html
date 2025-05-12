@@ -118,9 +118,6 @@
       <textarea id="notes" name="notes" rows="5" placeholder="Anything to add..."></textarea>
     </div>
 
-    const timestamp = new Date().toISOString();
-    params.append("submissionTimestamp", timestamp);
-
     <button type="submit">Submit</button>
   </form>
 
@@ -157,22 +154,6 @@
 
       if (!confirm("Submit fueling log?")) return;
 
-      // Record submission timestamp
-      const timestamp = new Date().toISOString();
-      document.getElementById("submissionTimestamp").value = timestamp;
-
-      const formData = new FormData(form);
-      const params = new URLSearchParams();
-      for (const [key, value] of formData.entries()) {
-        params.append(key, value);
-      }
-
-      // Log values being sent
-      console.log("Submitting data:");
-      for (const [key, value] of params.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-      
       // Time validation
       const start = form.elements["fuelingStartTime"].value;
       const end = form.elements["fuelingEndTime"].value;
@@ -184,6 +165,23 @@
 
       status.innerText = "Submitting...";
       status.className = "";
+      
+      // Record submission timestamp
+      const timestamp = new Date().toISOString();
+
+      const formData = new FormData(form);
+      const params = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        params.append(key, value);
+      }
+
+      params.append("submissionTimestamp", timestamp);
+
+      // Log values being sent
+      console.log("Submitting data:");
+      for (const [key, value] of params.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       try {
         const response = await fetch("https://script.google.com/macros/s/AKfycbw23t7JZfKx67bWPIK80aDhms0H_5QaZkyr6vOET7NNtTtfVnzeji-DUDt1e-oU_BRXfQ/exec", {
