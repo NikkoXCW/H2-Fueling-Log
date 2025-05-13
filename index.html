@@ -3,6 +3,7 @@
 <head>
   <title>H2 Fueling Log</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,18 +51,17 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    button:hover {
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
       background-color: #0056b3;
     }
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    #status.success {
-      color: green;
-    }
-    #status.error {
-      color: red;
+    @media (max-width: 600px) {
+      .form-group {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
@@ -118,14 +118,12 @@
       <textarea id="notes" name="notes" rows="5" placeholder="Anything to add..."></textarea>
     </div>
 
+    <input type="hidden" name="submissionTimestamp" id="submissionTimestamp">
     <button type="submit">Submit</button>
   </form>
 
-  <p id="status"></p>
-
   <script>
     const form = document.getElementById("form");
-    const status = document.getElementById("status");
     const STORAGE_KEY = "h2_fueling_log_draft";
 
     // Load saved draft
@@ -152,7 +150,10 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      if (!confirm("Submit fueling log?")) return;
+      const confirmSubmit = window.confirm("Are you sure you want to submit this driving log?");
+      if (!confirmSubmit) return;
+
+      document.getElementById("submissionTimestamp").value = new Date().toISOString();
 
       // Time validation
       const start = form.elements["fuelingStartTime"].value;
@@ -194,20 +195,16 @@
 
         const text = await response.text();
         console.log("Response:", text);
+        alert("Submitted successfully!\n\nResponse:\n" + text);
 
-        if (response.ok) {
-          status.innerText = "Submitted successfully!";
-          status.className = "success";
-          form.reset();
-          localStorage.removeItem(STORAGE_KEY);
-        } else {
-          status.innerText = "Submission failed.";
-          status.className = "error";
-        }
+        form.reset();
+        document.getElementById("submissionTimestamp").value = "";
+        localStorage.removeItem(STORAGE_KEY);
       } catch (error) {
         console.error("Submission error:", error);
-        status.innerText = "Submission failed.";
-        status.className = "error";
+        alert("Submission failed. Please try again.\n\nError:\n" + error.message);
+      } finally {
+        submitBtn.disabled = false;
       }
     });
   </script>
